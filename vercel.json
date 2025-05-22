@@ -1,15 +1,9 @@
 {
-    "version":2,
-    "builds":[
-        {
-            "src":"api.py",
-            "use":"@vercel/python",
-        }
-    ],
-    "routes":[
-        {
-            "src":"/(.*)",
-            "dest":"api.py"
-        }
-    ]
+  "version": 2,
+  "builds": [
+    { "src": "api/get-skills.py", "use": "@vercel/python" }
+  ],
+  "routes": [
+    { "src": "/get-skills/(.*)/(.*)", "dest": "api/get-skills.py" }
+  ]
 }

@@ -1,3 +1,4 @@
+import json
 import re
 from collections import Counter
 
@@ -7,7 +8,7 @@ skill_patterns = re.compile(
     re.IGNORECASE
 )
 
-# Clean text
+# Text cleaner
 def clean_text(text):
     text = re.sub(r"\n|<.*?>|\t|\r", " ", str(text))
     text = re.sub(r"\s+", " ", text).strip()
@@ -20,29 +21,30 @@ def extract_skills(descriptions):
     counts = Counter([m.lower() for m in matches])
     return [skill for skill, _ in counts.most_common()]
 
-# Mock job summaries
+# Mock job data
 def get_mocked_job_summaries(job, location):
     return [
         f"We are looking for a {job} developer with experience in .NET, C#, Azure, and Agile methodologies.",
         "The candidate must have skills in SQL, RESTful APIs, and CI/CD pipelines.",
         "Experience with Docker, Kubernetes, and cloud computing is a plus.",
-        "Strong knowledge of Git, Jira, and software testing is required.",
+        "Strong knowledge of Git, Jira, and software testing is required."
     ]
 
-# Vercel handler
-def handler(request):
+# Vercel-compatible handler
+def handler(event, context):
     try:
-        params = request.get("queryStringParameters") or {}
-        job = params.get("job", "developer")
-        location = params.get("location", "remote")
+        # Get query params
+        query = event.get("queryStringParameters") or {}
+        job = query.get("job", "developer")
+        location = query.get("location", "remote")
 
-        summaries = get_mocked_job_summaries(job, location)
-        skills = extract_skills(summaries)
+        descriptions = get_mocked_job_summaries(job, location)
+        skills = extract_skills(descriptions)
 
         return {
             "statusCode": 200,
             "headers": { "Content-Type": "application/json" },
-            "body": str({
+            "body": json.dumps({
                 "job": job,
                 "location": location,
                 "skills": skills
@@ -51,5 +53,5 @@ def handler(request):
     except Exception as e:
         return {
             "statusCode": 500,
-            "body": f"Error: {str(e)}"
+            "body": json.dumps({ "error": str(e) })
         }

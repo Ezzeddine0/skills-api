@@ -1,11 +1,7 @@
-from flask import Flask, request, jsonify
 import re
 from collections import Counter
 
-# Initialize Flask app
-app = Flask(__name__)
-
-# Regex skill patterns
+# Skill pattern
 skill_patterns = re.compile(
     r"\b(java|python|kotlin|flutter|react|angular|node|swift|ruby|php|c\+\+|c#|go|docker|kubernetes|aws|azure|gcp|restful|graphql|ai|ml|dl|cv|nlp|cloud|devops|agile|ci/cd|sql|nosql|mongodb|firebase|redux|git|jira|confluence|trello|testing|tdd|bdd|scrum|microservices|big data|data science|machine learning|deep learning|nlp|cloud computing|containerization|orchestration|api|mvc|mvvm|mvp|.net|spring|django|express|flask|ios|android|dart|objective-c|cybersecurity|penetration testing|firewalls|siem|threat intelligence|data analysis|pandas|numpy|matplotlib|seaborn|scikit-learn|tensorflow|keras|pytorch)\b",
     re.IGNORECASE
@@ -17,14 +13,14 @@ def clean_text(text):
     text = re.sub(r"\s+", " ", text).strip()
     return text.lower()
 
-# Extract skills from job descriptions
-def extract_skills_from_descriptions(descriptions):
+# Extract skills
+def extract_skills(descriptions):
     all_text = ' '.join([clean_text(desc) for desc in descriptions])
     matches = skill_patterns.findall(all_text)
     counts = Counter([m.lower() for m in matches])
     return [skill for skill, _ in counts.most_common()]
 
-# Mock job data (replace this with actual API calls later)
+# Mock job summaries
 def get_mocked_job_summaries(job, location):
     return [
         f"We are looking for a {job} developer with experience in .NET, C#, Azure, and Agile methodologies.",
@@ -33,20 +29,27 @@ def get_mocked_job_summaries(job, location):
         "Strong knowledge of Git, Jira, and software testing is required.",
     ]
 
-# Route handler
-@app.route("/get-skills/<job>/<location>")
-def get_skills(job, location):
+# Vercel handler
+def handler(request):
     try:
-        descriptions = get_mocked_job_summaries(job, location)
-        skills = extract_skills_from_descriptions(descriptions)
-        return jsonify({
-            "job": job,
-            "location": location,
-            "skills": skills
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        params = request.get("queryStringParameters") or {}
+        job = params.get("job", "developer")
+        location = params.get("location", "remote")
 
-# Only run this locally
-if __name__ == "__main__":
-    app.run(debug=True)
+        summaries = get_mocked_job_summaries(job, location)
+        skills = extract_skills(summaries)
+
+        return {
+            "statusCode": 200,
+            "headers": { "Content-Type": "application/json" },
+            "body": str({
+                "job": job,
+                "location": location,
+                "skills": skills
+            })
+        }
+    except Exception as e:
+        return {
+            "statusCode": 500,
+            "body": f"Error: {str(e)}"
+        }

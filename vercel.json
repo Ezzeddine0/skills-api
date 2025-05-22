@@ -1,14 +1,14 @@
 {
   "version": 2,
   "functions": {
-    "skills-api/api/get-skills.py": {
+    "api/get-skills.py": {
       "runtime": "python3.9"
     }
   },
   "routes": [
     {
       "src": "/api/get-skills",
-      "dest": "skills-api/api/get-skills.py"
+      "dest": "api/get-skills.py"
     }
   ]
 }

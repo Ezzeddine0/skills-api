@@ -7,7 +7,7 @@
   },
   "routes": [
     {
-      "src": "/get-skills",
+      "src": "/api/get-skills",
       "dest": "api/get-skills.py"
     }
   ]
